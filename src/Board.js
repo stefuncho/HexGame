@@ -1,5 +1,6 @@
 import React from 'react';
-import {
+import
+{
   HexGrid,
   Layout,
   Hexagon,
@@ -15,23 +16,31 @@ const REGIONS =
   1: "gr",
   2: "fr",
   3: "es",
+  4: "tr",
+  5: "eg",
+  6: "mo",
 }
 
-export function HexBoard({ ctx, G, moves }) {
+export function HexBoard({ ctx, G, moves })
+{
   //const onClick = (id) => moves.clickCell(id);
 
 
-  function getRandomInt(max) {
-    return "pat-"+Math.floor(Math.random() * max);
+  function getRandomInt(max)
+  {
+    return "pat-" + Math.floor(Math.random() * max);
   }
 
-  function getRandomRegion(max) {
+  function getRandomRegion(max)
+  {
     return REGIONS[Math.floor(Math.random() * max)];
   }
 
   let tbody = [];
-  for (let i = 0; i < 22; i++) {
-    for (let j = 0; j < 11; j++) {
+  for (let i = 0; i < 24; i++)
+  {
+    for (let j = 0; j < 11; j++)
+    {
 
       const cell = G.cells[i][j];
       if (cell !== null)
@@ -48,13 +57,13 @@ export function HexBoard({ ctx, G, moves }) {
     <div>
       <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
         <Layout
-            size={{ x: 4, y: 4 }}
-            flat={true}
-            spacing={1.1}
-            origin={{ x: -70, y: -45 }}
-            className="board"
+          size={{ x: 4, y: 4 }}
+          flat={true}
+          spacing={1.1}
+          origin={{ x: -70, y: -45 }}
+          className="board"
         >
-            {tbody}
+          {tbody}
         </Layout>
         <Pattern id="pat-0" link="https://placecats.com/59/59" />
         <Pattern id="pat-1" link="https://placecats.com/60/60" />

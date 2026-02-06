@@ -1,29 +1,30 @@
-svg .board {
-
-}
+svg .board {}
 
 svg .board g {
-  fill: #c4c0ae;
-  fill-opacity: 0.6;
+    fill: #c4c0ae;
+    fill-opacity: 0.6;
 }
+
 svg .board g:hover {
-  fill: #c5c5b3;
-  fill-opacity: 0.7;
+    fill: #c5c5b3;
+    fill-opacity: 0.7;
 }
+
 svg .board g:hover text {
-  fill-opacity: 1;
+    fill-opacity: 1;
 }
 
 svg .board g polygon {
-  stroke: #ebe6cf;
-  stroke-width: 0.2;
-  transition: fill-opacity .5s;
+    stroke: #ebe6cf;
+    stroke-width: 0.2;
+    transition: fill-opacity .5s;
 }
+
 svg .board g text {
-  font-size: 0.22em;
-  fill: white;
-  fill-opacity: 0.7;
-  transition: fill-opacity .5s;
+    font-size: 0.22em;
+    fill: white;
+    fill-opacity: 0.7;
+    transition: fill-opacity .5s;
 }
 
 svg .gr g {
@@ -56,4 +57,28 @@ svg .es g {
 
 svg .es g:hover {
     fill: #f8eca6;
+}
+
+svg .tr g {
+    fill: #bc76c2;
+}
+
+svg .tr g:hover {
+    fill: #f0acf7;
+}
+
+svg .eg g {
+    fill: #c2ae76;
+}
+
+svg .eg g:hover {
+    fill: #d1c6a7;
+}
+
+svg .mo g {
+    fill: #b36a40;
+}
+
+svg .mo g:hover {
+    fill: #eca175;
 }
