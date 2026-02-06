@@ -9,6 +9,8 @@ import
   Hex,
 } from "react-hexgrid";
 import './Board.css';
+import './Types.ts';
+import { TradeTokes } from './Dictionary.ts';
 
 const REGIONS =
 {
@@ -25,7 +27,6 @@ export function HexBoard({ ctx, G, moves })
 {
   //const onClick = (id) => moves.clickCell(id);
 
-
   function getRandomInt(max)
   {
     return "pat-" + Math.floor(Math.random() * max);
@@ -37,30 +38,31 @@ export function HexBoard({ ctx, G, moves })
   }
 
   let tbody = [];
-  for (let i = 0; i < 24; i++)
+  for (let i = 0; i < 25; i++)
   {
-    for (let j = 0; j < 11; j++)
+    for (let j = 0; j < 14; j++)
     {
 
       const cell = G.cells[i][j];
       if (cell !== null)
       {
         tbody.push(
-          <Hexagon q={i} r={j-Math.floor(i/2)} s={0} className={REGIONS[cell]} />
+          <Hexagon q={i} r={j-Math.floor(i/2)} s={0} className={REGIONS[cell.regionId]}>
+          <image href={cell.resourceId >= 0 ? TradeTokes[cell.resourceId].image : null}/>
+          </Hexagon>
         );
-        // fill={getRandomInt(6)}
       }
     }
   }
 
   return (
     <div>
-      <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
+      <HexGrid width={1400} height={800} viewBox="-50 -50 100 100">
         <Layout
-          size={{ x: 4, y: 4 }}
+          size={{ x: 3, y: 3 }}
           flat={true}
           spacing={1.1}
-          origin={{ x: -70, y: -45 }}
+          origin={{ x: -82, y: -46 }}
           className="board"
         >
           {tbody}
