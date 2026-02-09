@@ -25,6 +25,7 @@ svg .board g image {
     width: 3px;
     x: -1.5;
     y: -1.5;
+    color-scheme: only light;
 }
 
 svg .board g text {
