@@ -54,7 +54,12 @@ export const Hex = {
         resources.push({ value: 0, production: 0 });
       }
 
-      players["0"] = { resources: resources };
+      players["0"] = { 
+        resources: resources,
+        population: 5,
+        goods: [],
+        buildings: [],
+      };
 
     }
 
@@ -64,7 +69,19 @@ export const Hex = {
   moves: {
     build: ({ G, playerID }, x, y, type) =>
     {
-      G.cells[x][y].building = { type: type, owner: playerID }
+      const newBuilding = { type: type, owner: playerID };
+
+      G.players[playerID].buildings.push(newBuilding);
+      G.cells[x][y].building = newBuilding;
+    },
+    produce: ({ G, playerID }, type) =>
+    {
+      const playerData = G.players[playerID];
+      const playerResources = playerData.resources[type];
+
+      playerResources.value
+        += playerResources.production 
+          + playerData.population;
     },
   },
 };
