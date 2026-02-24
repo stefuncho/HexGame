@@ -1,0 +1,44 @@
+export enum PillarType {
+  Culture = 0,
+  Science = 1,
+  Technology = 2,
+  Government = 3,
+  Religion = 4,
+  Military = 5,
+  Food = 6,
+  Trade = 7,
+  Population = 8,
+};
+
+export class Pillars
+{
+    dict: { [id : number ] : number}
+
+    constructor() {
+        this.dict = {};
+
+        for (let pillar in PillarType) {
+            this.dict[pillar] = 0;
+        }
+    }
+
+    increase(type: PillarType , count: number) : void {
+        this.dict[type] += count;
+    }
+
+    add(other: Pillars) : void {
+        for (let pillar in other.dict) {
+            this.dict[pillar] += other.dict[pillar];
+        }
+    }
+
+    satisfies(other:Pillars) : boolean {
+        for (let pillar in other.dict) {
+            if (other.dict[pillar] > this.dict[pillar])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}

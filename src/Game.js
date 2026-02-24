@@ -54,11 +54,13 @@ export const Hex = {
         resources.push({ value: 0, production: 0 });
       }
 
-      players["0"] = { 
+      players["0"] = {
+        points: 0,
         resources: resources,
         population: 5,
         goods: [],
         buildings: [],
+        policyPower: false,
       };
 
     }
