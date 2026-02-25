@@ -1,4 +1,5 @@
 import { Map, TradeTokes } from "./model/Dictionary.ts";
+import { PillarsExt } from "./model/Pillars.ts";
 import "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 
@@ -58,6 +59,7 @@ export const Hex = {
         points: 0,
         resources: resources,
         population: 5,
+        pillars: PillarsExt.create(),
         goods: [],
         buildings: [],
         policyPower: false,
@@ -84,6 +86,13 @@ export const Hex = {
       playerResources.value
         += playerResources.production 
           + playerData.population;
+    },
+    introducePolicy: ({ G, playerID }, type) =>
+    {
+      const playerData = G.players[playerID];
+
+      // if (!PillarsExt.satisfies(playerData.pillars, ))
+      //   return;
     },
   },
 };

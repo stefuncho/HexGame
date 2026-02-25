@@ -1,4 +1,5 @@
 import type { Game } from 'boardgame.io';
+import { Pillars } from './Pillars';
 
 export enum PolicyType 
 {
@@ -15,5 +16,7 @@ export interface Scoring {
 export type Policy =
 {
     type: PolicyType;
+    req: Pillars;
+    cost: number;
     score: Scoring;
 }
