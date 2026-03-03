@@ -1,16 +1,18 @@
-import type { Game } from 'boardgame.io';
+import { HexGame } from './HexGame';
 import { Pillars } from './Pillars';
 
 export enum PolicyType 
 {
-  City = 0,
-  Port = 1,
-  Farm = 2,
-  Workshop = 3
+  CityState = 0,
+  Monarchy = 1,
+  Oligarchy = 2,
+  Republic = 3,
+  Theocracy = 4,
+  Tyranny = 5,
 };
 
 export interface Scoring {
-    (g : Game): number;
+    (g : HexGame, pid : number): number;
 }
 
 export type Policy =

@@ -1,13 +1,13 @@
 export enum PillarType {
-  Culture = 0,
-  Science = 1,
-  Technology = 2,
-  Government = 3,
-  Religion = 4,
-  Military = 5,
-  Food = 6,
-  Trade = 7,
-  Population = 8,
+    Population = 0,
+    Build = 1,
+    Culture = 2,
+    Government = 3,
+    Food = 4,
+    Urbanization = 5,
+    Science = 6,
+    Economic = 7,
+    Military = 8,
 };
 
 export type Pillars =

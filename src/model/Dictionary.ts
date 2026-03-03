@@ -1,4 +1,4 @@
-import { Nullable, Cell, CreateCell } from "./Types.ts"
+import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType } from "./Types.ts"
 
 export const Map = await fetch("board.map")
   .then((res) => res.text())
@@ -164,3 +164,88 @@ export const BuildingTypes =
     title: "Cud"
   },
 ];
+
+export const Policies : Array<Policy> = 
+[
+  {
+    type: PolicyType.CityState,
+    req: { 
+      dict: { 
+        [PillarType.Government] : 2,
+        [PillarType.Population] : 1,
+      } 
+    },
+    cost: 15,
+    score: (G, playerID) => {
+        const player = G.players[playerID];
+        return player.buildings.length;
+      },
+  },
+  {
+    type: PolicyType.Monarchy,
+    req: { 
+      dict: { 
+        [PillarType.Government] : 2,
+        [PillarType.Food] : 1,
+      } 
+    },
+    cost: 15,
+    score: (G, playerID) => {
+        const player = G.players[playerID];
+        return player.buildings.filter(b => b.type === BuildingType.Wonder).length;
+      },
+  },
+  {
+    type: PolicyType.Oligarchy,
+    req: { 
+      dict: { 
+        [PillarType.Government] : 2,
+        [PillarType.Economic] : 1,
+      } 
+    },
+    cost: 15,
+    score: (G, playerID) => {
+        return 0; // TODO 1/2(4+ players) pt for every Golden Age or Achievement
+      },
+  },
+  {
+    type: PolicyType.Republic,
+    req: { 
+      dict: { 
+        [PillarType.Government] : 3,
+        [PillarType.Culture] : 1,
+      } 
+    },
+    cost: 20,
+    score: (G, playerID) => {
+        const player = G.players[playerID];
+        return Math.floor(player.population / 2);
+      },
+  },
+  {
+    type: PolicyType.Theocracy,
+    req: { 
+      dict: { 
+        [PillarType.Government] : 2,
+        [PillarType.Military] : 1,
+      } 
+    },
+    cost: 15,
+    score: (G, playerID) => {
+        const player = G.players[playerID];
+        return player.buildings.length;
+      },
+  },
+  {
+    type: PolicyType.Tyranny,
+    req: { 
+      dict: { 
+        [PillarType.Military] : 2,
+      } 
+    },
+    cost: 5,
+    score: (G, playerID) => {
+        return 0; // TODO: 2/3(4+ players) pts for each controlled region
+      },
+  },
+]

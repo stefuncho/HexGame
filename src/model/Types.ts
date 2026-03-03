@@ -1,5 +1,7 @@
 import { Building } from "./Building.ts"
+export * from "./Pillars.ts"
 export * from "./Building.ts"
+export * from "./Policy.ts"
 
 export type Nullable<T> = T | null;
 

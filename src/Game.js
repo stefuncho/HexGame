@@ -1,10 +1,10 @@
-import { Map, TradeTokes } from "./model/Dictionary.ts";
+import { Map, Policies, TradeTokes, BuildingType } from "./model/Dictionary.ts";
 import { PillarsExt } from "./model/Pillars.ts";
 import "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 
 export const Hex = {
-  setup: ({ random, ctx }) => 
+  setup: ({ random : RandomAPI, ctx }) => 
   {
     var tokens = [];
     var map = Map;
@@ -62,9 +62,16 @@ export const Hex = {
         pillars: PillarsExt.create(),
         goods: [],
         buildings: [],
+        policy: null,
         policyPower: false,
+        availableBuildings: 
+        {
+          0: 10,
+          1: 10,
+          2: 10,
+          3: 10,
+        }
       };
-
     }
 
     return { cells: cells, players: players };
@@ -73,9 +80,13 @@ export const Hex = {
   moves: {
     build: ({ G, playerID }, x, y, type) =>
     {
+      const playerData = G.players[playerID];
+
+      playerData
+
       const newBuilding = { type: type, owner: playerID };
 
-      G.players[playerID].buildings.push(newBuilding);
+      playerData.buildings.push(newBuilding);
       G.cells[x][y].building = newBuilding;
     },
     produce: ({ G, playerID }, type) =>
@@ -90,9 +101,18 @@ export const Hex = {
     introducePolicy: ({ G, playerID }, type) =>
     {
       const playerData = G.players[playerID];
+      const policy = Policies[type];
 
-      // if (!PillarsExt.satisfies(playerData.pillars, ))
-      //   return;
+      if (!PillarsExt.satisfies(playerData.pillars, policy.req))
+        return;
+
+      if (playerData.resources[ResourceType.Idea] < policy.cost)
+        return;
+
+      playerData.resources[ResourceType.Idea] -= policy.cost;
+
+      playerData.policy = policy.type;
+      playerData.policyPower = true;
     },
   },
 };
