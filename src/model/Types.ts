@@ -1,9 +1,14 @@
 import { Building } from "./Building.ts"
 export * from "./Pillars.ts"
 export * from "./Building.ts"
+
 export * from "./Policy.ts"
 
 export type Nullable<T> = T | null;
+
+export type EnumDictionary<T extends string | symbol | number, U> = {
+    [K in T]: U;
+};
 
 export enum ResourceType {
     Stone = 0,
@@ -25,6 +30,14 @@ export type Cell =
     type: CellType;
     building: Building | undefined;
     resourceId: number | undefined;
+}
+
+export enum BuildingType {
+  City = 0,
+  Port = 1,
+  Farm = 2,
+  Workshop = 3,
+  Wonder = 4
 }
 
 export function CreateCell(id : number, regionId : number, cell? : CellType) : Cell {

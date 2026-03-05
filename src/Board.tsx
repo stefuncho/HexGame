@@ -1,19 +1,20 @@
-import React from 'react';
 import
 {
   HexGrid,
   Layout,
   Hexagon,
-  Text,
+  //Text,
   Pattern,
-  Hex,
+  //Hex,
 } from "react-hexgrid";
 import './Board.css';
 import './model/Types.ts';
 import { TradeTokes, BuildingTypes, PlayerInfo } from './model/Dictionary.ts';
 import { BuildingType, ResourceType } from './model/Types.ts';
+import { HexGame } from "./model/HexGame.ts";
+import { BoardProps } from "boardgame.io/dist/types/packages/react";
 
-const REGIONS =
+const REGIONS : { [ regionId: number] : string } =
 {
   0: "ro",
   1: "gr",
@@ -24,7 +25,9 @@ const REGIONS =
   6: "mo",
 }
 
-export function HexBoard({ ctx, G, moves })
+export interface HexBoardProps extends BoardProps<HexGame> {}
+
+export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
 {
   function onClick(event, source) 
   { 
@@ -32,15 +35,15 @@ export function HexBoard({ ctx, G, moves })
     moves.build(hex.q, hex.r+Math.floor(hex.q/2), BuildingType.City);
   }
 
-  function getRandomInt(max)
-  {
-    return "pat-" + Math.floor(Math.random() * max);
-  }
+  // function getRandomInt(max : number)
+  // {
+  //   return "pat-" + Math.floor(Math.random() * max);
+  // }
 
-  function getRandomRegion(max)
-  {
-    return REGIONS[Math.floor(Math.random() * max)];
-  }
+  // function getRandomRegion(max : number)
+  // {
+  //   return REGIONS[Math.floor(Math.random() * max)];
+  // }
 
   let tbody = [];
   for (let i = 0; i < 25; i++)
@@ -56,8 +59,8 @@ export function HexBoard({ ctx, G, moves })
           {cell.building !== undefined 
             ? (
             <image href={BuildingTypes[cell.building.type].image}
-              filter={PlayerInfo[cell.building.owner].filter}>
-              <title>{BuildingTypes[cell.building.type].title + " " + PlayerInfo[cell.building.owner].title}</title>
+              filter={PlayerInfo[cell.building.ownerId].filter}>
+              <title>{BuildingTypes[cell.building.type].title + " " + PlayerInfo[cell.building.ownerId].title}</title>
             </image>
           ) : (
             <image href={cell.resourceId >= 0 ? TradeTokes[cell.resourceId].image : null}>
@@ -98,3 +101,5 @@ export function HexBoard({ ctx, G, moves })
     </div>
   );
 }
+
+export default HexBoard;

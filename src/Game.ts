@@ -1,13 +1,16 @@
-import { Map, Policies, TradeTokes, BuildingType } from "./model/Dictionary.ts";
+import { Building, BuildingType } from "./model/Types.ts";
+import { LoadMap, Policies, TradeTokes } from "./model/Dictionary.ts";
+import { PlayerState, HexGame } from "./model/HexGame.ts";
 import { PillarsExt } from "./model/Pillars.ts";
-import "./model/Types.ts"
+import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
+import { Game } from "boardgame.io";
 
-export const Hex = {
-  setup: ({ random : RandomAPI, ctx }) => 
+export const Hex : Game<HexGame> = {
+  setup: ({ random }) => 
   {
-    var tokens = [];
-    var map = Map;
+    var tokens : number[] = [];
+    var map = LoadMap() as Nullable<Cell>[][];
 
     for (var i = 0; i < TradeTokes.length; i++)
       for (var j = 0; j < 5; j++)
@@ -18,7 +21,7 @@ export const Hex = {
 
     tokens = random.Shuffle(tokens);
 
-    var cells = [];
+    var cells : Nullable<Cell>[][] = [];
     
     for (i = 0; i < map.length; i++)
     {
@@ -26,14 +29,14 @@ export const Hex = {
 
       for (j = 0; j < map[i].length; j++)
       {
-        var cell = map[i][j] ? CopyCell(map[i][j]) : null;
+        var cell = map[i][j] ? CopyCell(map[i][j] as Cell) : null;
 
         cells[i].push(cell);
 
         if (cell === null)
           continue;
 
-        var resourceId = tokens.pop();
+        var resourceId = tokens.pop() as number;
 
         if (resourceId < 0)
           continue;
@@ -44,7 +47,7 @@ export const Hex = {
     
     //console.log(cells);
 
-    var players = [];
+    var players : { [ playerID : string ] : PlayerState } = {};
 
     for (i = 0; i < 1; i++)
     {
@@ -66,10 +69,11 @@ export const Hex = {
         policyPower: false,
         availableBuildings: 
         {
-          0: 10,
-          1: 10,
-          2: 10,
-          3: 10,
+          [BuildingType.City] : 12,
+          [BuildingType.Port] : 3,
+          [BuildingType.Farm] : 6,
+          [BuildingType.Workshop] : 6,
+          [BuildingType.Wonder] : 0,
         }
       };
     }
@@ -82,13 +86,12 @@ export const Hex = {
     {
       const playerData = G.players[playerID];
 
-      playerData
-
-      const newBuilding = { type: type, owner: playerID };
+      const newBuilding : Building = { type: type, ownerId: playerID };
 
       playerData.buildings.push(newBuilding);
-      G.cells[x][y].building = newBuilding;
+      (G.cells[x][y] as Cell).building = newBuilding;
     },
+    
     produce: ({ G, playerID }, type) =>
     {
       const playerData = G.players[playerID];
@@ -98,6 +101,7 @@ export const Hex = {
         += playerResources.production 
           + playerData.population;
     },
+
     introducePolicy: ({ G, playerID }, type) =>
     {
       const playerData = G.players[playerID];
