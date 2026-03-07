@@ -19,7 +19,7 @@ export const Hex = {
     tokens = random.Shuffle(tokens);
 
     var cells = [];
-    
+
     for (i = 0; i < map.length; i++)
     {
       cells.push([]);
@@ -41,7 +41,7 @@ export const Hex = {
         cell.resourceId = resourceId;
       }
     }
-    
+
     //console.log(cells);
 
     var players = [];
@@ -95,8 +95,8 @@ export const Hex = {
       const playerResources = playerData.resources[type];
 
       playerResources.value
-        += playerResources.production 
-          + playerData.population;
+        += playerResources.production
+        + playerData.population;
     },
     introducePolicy: ({ G, playerID }, type) =>
     {
@@ -113,6 +113,16 @@ export const Hex = {
 
       playerData.policy = policy.type;
       playerData.policyPower = true;
+    },
+    breed: ({ G, playerID }) =>
+    {
+      const playerData = G.players[playerID];
+
+      if (playerData.resources[ResourceType.Food] < 12)
+        return;
+
+      playerData.resources[ResourceType.Food] -= 12;
+      playerData.population += 2;
     },
   },
 };
