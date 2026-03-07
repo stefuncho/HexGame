@@ -23,7 +23,7 @@ export const Hex : Game<HexGame> = {
     tokens = random.Shuffle(tokens);
 
     var cells : Nullable<Cell>[][] = [];
-    
+
     for (i = 0; i < map.length; i++)
     {
       cells.push([]);
@@ -45,7 +45,7 @@ export const Hex : Game<HexGame> = {
         cell.resourceId = resourceId;
       }
     }
-    
+
     //console.log(cells);
 
     var players : { [ playerID : string ] : PlayerState } = {};
@@ -107,8 +107,8 @@ export const Hex : Game<HexGame> = {
       const playerResources = playerData.resources[type];
 
       playerResources.value
-        += playerResources.production 
-          + playerData.population;
+        += playerResources.production
+        + playerData.population;
     },
 
     introducePolicy: ({ G, playerID }, type) =>
@@ -126,6 +126,16 @@ export const Hex : Game<HexGame> = {
 
       playerData.policy = policy.type;
       playerData.policyPower = true;
+    },
+    breed: ({ G, playerID }) =>
+    {
+      const playerData = G.players[playerID];
+
+      if (playerData.resources[ResourceType.Food].value < 12)
+        return;
+
+      playerData.resources[ResourceType.Food].value -= 12;
+      playerData.population += 2;
     },
   },
 };

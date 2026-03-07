@@ -1,4 +1,4 @@
-import
+﻿import
 {
   HexGrid,
   Layout,
@@ -30,9 +30,9 @@ export interface HexBoardProps extends BoardProps<HexGame> {}
 export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
 {
   function onClick(event : any, source : any) 
-  { 
+  {
     var hex = source.state.hex;
-    moves.build(hex.q, hex.r+Math.floor(hex.q/2), BuildingType.City);
+    moves.build(hex.q, hex.r + Math.floor(hex.q / 2), BuildingType.City);
   }
   function onProduce(type : ResourceType) 
   {
@@ -78,6 +78,7 @@ export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
   }
 
   var resources = G.players[ctx.currentPlayer].resources;
+  var population = G.players[ctx.currentPlayer].population;
   var availableBuildings = G.players[ctx.currentPlayer].availableBuildings;
   
   let tresources = [];
@@ -124,6 +125,7 @@ export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
       <table>
         <tr>
           <td>
+      Populacja: {population}<br />
             {tresources}
           </td>
           <td>
