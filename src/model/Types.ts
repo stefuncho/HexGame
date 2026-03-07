@@ -15,7 +15,8 @@ export enum ResourceType {
     Food = 1,
     Idea = 2,
     Money = 3,
-    Count = 4,
+    Population = 4,
+    Count = 5,
 }
 
 export enum CellType {

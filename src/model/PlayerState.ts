@@ -11,7 +11,6 @@ export type PlayerResource = {
 export interface PlayerState {
     points: number;
     resources: PlayerResource[];
-    population: number;
     pillars: Pillars;
     goods: [];
     buildings: Array<Building>;

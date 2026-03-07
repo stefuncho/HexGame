@@ -1,4 +1,4 @@
-import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType } from "../model/Types.ts"
+import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType } from "../model/Types.ts"
 import { Map } from "./Resources.mjs"
 
 export function LoadMap()
@@ -217,7 +217,7 @@ export const Policies : Array<Policy> =
     cost: 20,
     score: (G, playerID) => {
         const player = G.players[playerID];
-        return Math.floor(player.population / 2);
+        return Math.floor(player.resources[ResourceType.Population].value / 2);
       },
   },
   {

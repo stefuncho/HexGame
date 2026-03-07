@@ -6,6 +6,7 @@ import { PillarsExt } from "./model/Pillars.ts";
 import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 import { Game } from "boardgame.io";
+import { INVALID_MOVE } from "boardgame.io/core";
 
 export const Hex : Game<HexGame> = {
   setup: ({ random, ctx }) => 
@@ -46,8 +47,6 @@ export const Hex : Game<HexGame> = {
       }
     }
 
-    //console.log(cells);
-
     var players : { [ playerID : string ] : PlayerState } = {};
 
     for (i = 0; i < ctx.numPlayers; i++)
@@ -59,10 +58,11 @@ export const Hex : Game<HexGame> = {
         resources.push({ value: 0, production: 0 });
       }
 
+      resources[ResourceType.Population].value = 5;
+
       players[i] = {
         points: 0,
         resources: resources,
-        population: 5,
         pillars: PillarsExt.create(),
         goods: [],
         buildings: [],
@@ -94,7 +94,7 @@ export const Hex : Game<HexGame> = {
       const newBuilding : Building = { type: type, ownerId: playerID };
 
       if (playerData.availableBuildings[type] <= 0)
-        return;
+        return INVALID_MOVE;
 
       playerData.availableBuildings[type]--;
       playerData.buildings.push(newBuilding);
@@ -108,7 +108,7 @@ export const Hex : Game<HexGame> = {
 
       playerResources.value
         += playerResources.production
-        + playerData.population;
+          + playerData.resources[ResourceType.Population].value;
     },
 
     introducePolicy: ({ G, playerID }, type) =>
@@ -117,12 +117,13 @@ export const Hex : Game<HexGame> = {
       const policy = Policies[type];
 
       if (!PillarsExt.satisfies(playerData.pillars, policy.req))
-        return;
+        return INVALID_MOVE;
 
-      if (playerData.resources[ResourceType.Idea].value < policy.cost)
-        return;
+      const cost = [];
+      cost[ResourceType.Idea] = policy.cost;
 
-      playerData.resources[ResourceType.Idea].value -= policy.cost;
+      if (!PlayerState.tryPay(playerData, cost))
+        return INVALID_MOVE;
 
       playerData.policy = policy.type;
       playerData.policyPower = true;
@@ -130,12 +131,13 @@ export const Hex : Game<HexGame> = {
     breed: ({ G, playerID }) =>
     {
       const playerData = G.players[playerID];
+      const cost = [];
+      cost[ResourceType.Food] = 12;
 
-      if (playerData.resources[ResourceType.Food].value < 12)
-        return;
+      if (!PlayerState.tryPay(playerData, cost))
+        return INVALID_MOVE;
 
-      playerData.resources[ResourceType.Food].value -= 12;
-      playerData.population += 2;
+      playerData.resources[ResourceType.Population].value += 2;
     },
   },
 };

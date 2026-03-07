@@ -1,9 +1,13 @@
+body {
+    background-color: #c4c0ae;
+}
+
 td {
     vertical-align: top;
 }
 
 .small-btn {
-    height: 2vi;
+    height: 1.5em;
 }
 
 svg .board g {
