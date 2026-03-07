@@ -1,13 +1,14 @@
 import { Building, BuildingType } from "./model/Types.ts";
-import { LoadMap, Policies, TradeTokes } from "./model/Dictionary.ts";
-import { PlayerState, HexGame } from "./model/HexGame.ts";
+import { LoadMap, Policies, TradeTokes } from "./data/Dictionary.ts";
+import { HexGame } from "./model/HexGame.ts";
+import { PlayerState, PlayerResource } from './model/PlayerState.ts';
 import { PillarsExt } from "./model/Pillars.ts";
 import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 import { Game } from "boardgame.io";
 
 export const Hex : Game<HexGame> = {
-  setup: ({ random }) => 
+  setup: ({ random, ctx }) => 
   {
     var tokens : number[] = [];
     var map = LoadMap() as Nullable<Cell>[][];
@@ -49,16 +50,16 @@ export const Hex : Game<HexGame> = {
 
     var players : { [ playerID : string ] : PlayerState } = {};
 
-    for (i = 0; i < 1; i++)
+    for (i = 0; i < ctx.numPlayers; i++)
     {
-      var resources = [];
+      var resources : PlayerResource[] = [];
 
       for (j = 0; j < ResourceType.Count; j++)
       {
         resources.push({ value: 0, production: 0 });
       }
 
-      players["0"] = {
+      players[i] = {
         points: 0,
         resources: resources,
         population: 5,
@@ -81,13 +82,21 @@ export const Hex : Game<HexGame> = {
     return { cells: cells, players: players };
   },
 
+  turn: {
+    minMoves: 1,
+    maxMoves: 1,
+  },
+
   moves: {
     build: ({ G, playerID }, x, y, type) =>
     {
       const playerData = G.players[playerID];
-
       const newBuilding : Building = { type: type, ownerId: playerID };
 
+      if (playerData.availableBuildings[type] <= 0)
+        return;
+
+      playerData.availableBuildings[type]--;
       playerData.buildings.push(newBuilding);
       (G.cells[x][y] as Cell).building = newBuilding;
     },
@@ -110,10 +119,10 @@ export const Hex : Game<HexGame> = {
       if (!PillarsExt.satisfies(playerData.pillars, policy.req))
         return;
 
-      if (playerData.resources[ResourceType.Idea] < policy.cost)
+      if (playerData.resources[ResourceType.Idea].value < policy.cost)
         return;
 
-      playerData.resources[ResourceType.Idea] -= policy.cost;
+      playerData.resources[ResourceType.Idea].value -= policy.cost;
 
       playerData.policy = policy.type;
       playerData.policyPower = true;

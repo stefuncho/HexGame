@@ -9,7 +9,7 @@ import
 } from "react-hexgrid";
 import './Board.css';
 import './model/Types.ts';
-import { TradeTokes, BuildingTypes, PlayerInfo } from './model/Dictionary.ts';
+import { TradeTokes, BuildingTypes, PlayerInfo } from './data/Dictionary.ts';
 import { BuildingType, ResourceType } from './model/Types.ts';
 import { HexGame } from "./model/HexGame.ts";
 import { BoardProps } from "boardgame.io/dist/types/packages/react";
@@ -29,10 +29,14 @@ export interface HexBoardProps extends BoardProps<HexGame> {}
 
 export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
 {
-  function onClick(event, source) 
+  function onClick(event : any, source : any) 
   { 
     var hex = source.state.hex;
     moves.build(hex.q, hex.r+Math.floor(hex.q/2), BuildingType.City);
+  }
+  function onProduce(type : ResourceType) 
+  {
+    moves.produce(type);
   }
 
   // function getRandomInt(max : number)
@@ -74,6 +78,28 @@ export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
   }
 
   var resources = G.players[ctx.currentPlayer].resources;
+  var availableBuildings = G.players[ctx.currentPlayer].availableBuildings;
+  
+  let tresources = [];
+  for (let i = 0; i < ResourceType.Count - 1; i++)
+  {
+    tresources.push(
+      <div>
+      {ResourceType[i]}: { resources[i].value } (+{ resources[i].production })
+        <input type="image" src="StrategyGameIcons/Tools.png" alt="Produce" className="small-btn" onClick={(e) => onProduce(i)}></input><br/>
+      </div>
+    );
+  }
+
+  let tbuildings = [];
+  for (let i = 0; i < BuildingType.Wonder; i++)
+  {
+    tbuildings.push(
+      <div>
+      {BuildingType[i]}: { availableBuildings[i] }<br/>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -95,9 +121,16 @@ export const HexBoard : React.FC<HexBoardProps> = ({ ctx, G, moves }) =>
         <Pattern id="pat-5" link="https://placecats.com/64/64" />
         <Pattern id="pat-6" link="https://placecats.com/65/65" />
       </HexGrid><br/>
-      Kamień: { resources[ResourceType.Stone].value } (+{ resources[ResourceType.Stone].production })<br/>
-      Jedzenie: { resources[ResourceType.Food].value } (+{ resources[ResourceType.Food].production })<br/>
-      Idee: { resources[ResourceType.Idea].value } (+{ resources[ResourceType.Idea].production })
+      <table>
+        <tr>
+          <td>
+            {tresources}
+          </td>
+          <td>
+            {tbuildings}
+          </td>
+        </tr>
+      </table>
     </div>
   );
 }

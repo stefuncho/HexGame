@@ -1,4 +1,4 @@
-import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType } from "./Types.ts"
+import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType } from "../model/Types.ts"
 import { Map } from "./Resources.mjs"
 
 export function LoadMap()

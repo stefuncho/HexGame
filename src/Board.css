@@ -1,4 +1,10 @@
-svg .board {}
+td {
+    vertical-align: top;
+}
+
+.small-btn {
+    height: 2vi;
+}
 
 svg .board g {
     fill: #c4c0ae;
