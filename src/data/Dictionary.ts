@@ -1,4 +1,4 @@
-import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType } from "../model/Types.ts"
+import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType, BuildingData, ResourcesEmpty } from "../model/Types.ts"
 import { Map } from "./Resources.mjs"
 
 export function LoadMap()
@@ -134,32 +134,42 @@ export const TradeTokes =
   },
 ];
 
-export const BuildingTypes = 
+export const BuildingTypes : BuildingData[] = 
 [
   {
     id: 0,
     image: "building-icons/City.png",
-    title: "Miasto"
+    title: "Miasto",
+    cost: ResourcesEmpty.with(ResourceType.Population, 2).with(ResourceType.Stone, 4),
+    tariffValue: 5,
   },
   {
     id: 1,
     image: "building-icons/Port.png",
-    title: "Port"
+    title: "Port",
+    cost: ResourcesEmpty.with(ResourceType.Population, 2).with(ResourceType.Stone, 4),
+    tariffValue: 10,
   },
   {
     id: 2,
     image: "building-icons/Wonder.png",
-    title: "Farma"
+    title: "Farma",
+    cost: ResourcesEmpty,
+    tariffValue: 0,
   },
   {
     id: 3,
     image: "building-icons/Wonder.png",
-    title: "Warsztat"
+    title: "Warsztat",
+    cost: ResourcesEmpty,
+    tariffValue: 0,
   },
   {
     id: 4,
     image: "building-icons/Wonder.png",
-    title: "Cud"
+    title: "Cud",
+    cost: ResourcesEmpty,
+    tariffValue: 0,
   },
 ];
 

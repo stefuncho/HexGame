@@ -1,4 +1,5 @@
 import { Building } from "./Building.ts"
+import { PlayerResource } from "./PlayerState.ts";
 export * from "./Pillars.ts"
 export * from "./Building.ts"
 
@@ -18,6 +19,8 @@ export enum ResourceType {
     Population = 4,
     Count = 5,
 }
+
+export const ResourcesEmpty : number[] = Array(ResourceType.Count);
 
 export enum CellType {
     Normal = 0,
@@ -40,6 +43,14 @@ export enum BuildingType {
   Farm = 2,
   Workshop = 3,
   Wonder = 4
+}
+
+export type BuildingData = {
+    id: number,
+    image: string,
+    title: string,
+    cost:  number[],
+    tariffValue: number,
 }
 
 export function CreateCell(id : number, regionId : number, cell? : CellType) : Cell {

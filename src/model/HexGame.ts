@@ -1,5 +1,5 @@
 import type { Game } from 'boardgame.io';
-import { Cell } from "./Types";
+import { BuildingType, Cell } from "./Types";
 import { Nullable } from './Types';
 import { PlayerState } from './PlayerState';
 

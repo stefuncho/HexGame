@@ -15,6 +15,7 @@
     "react-dom": "^19.2.4",
     "react-hexgrid": "^2.0.1",
     "react-scripts": "5.0.1",
+    "reactjs-popup": "^2.0.6",
     "typescript": "^5.9.3",
     "web-vitals": "^2.1.4"
   },

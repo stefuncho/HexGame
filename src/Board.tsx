@@ -6,12 +6,15 @@
   Pattern,
   //Hex,
 } from "react-hexgrid";
+import 'reactjs-popup/dist/index.css';
 import './Board.css';
 import './model/Types.ts';
 import { TradeTokes, BuildingTypes, PlayerInfo } from './data/Dictionary.ts';
 import { BuildingType, ResourceType } from './model/Types.ts';
 import { HexGame } from "./model/HexGame.ts";
 import { BoardProps } from "boardgame.io/dist/types/packages/react";
+import Popup from "reactjs-popup";
+import { canBuild } from "./Game.ts";
 
 const REGIONS: { [regionId: number]: string } =
 {
@@ -44,6 +47,11 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
   // {
   //   return REGIONS[Math.floor(Math.random() * max)];
   // }
+  const PopupExample = () => (
+    <Popup trigger={<input type="image" src="StrategyGameIcons/Paper.png" alt="Produce" className="small-btn" />} position="right center">
+      <div>Popup content here !!</div>
+    </Popup>
+  );
 
   let tbody = [];
   for (let i = 0; i < 25; i++) {
@@ -61,9 +69,12 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
                 </image>
               ) : (
                 <image href={cell.resourceId >= 0 ? TradeTokes[cell.resourceId].image : null}>
-                  <title>{cell.resourceId >= 0 ? TradeTokes[cell.resourceId].title : null}</title>
+                  <title>
+                    {cell.resourceId >= 0 ? TradeTokes[cell.resourceId].title : null}
+                  </title>
                 </image>
               )}
+            <text color="red">{canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "Y" : i + "," + j}</text>
           </Hexagon>
         );
       }
@@ -79,10 +90,16 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
     tresources.push(
       <div>
         {ResourceType[i]}: {resources[i].value} (+{resources[i].production})
-        <input type="image" src="StrategyGameIcons/Tools.png" alt="Produce" className="small-btn" onClick={(e) => onProduce(i)}></input><br />
+        <input type="image" src="StrategyGameIcons/Tools.png" alt="Produce" className="small-btn" onClick={(_) => onProduce(i)}></input><br />
       </div>
     );
   }
+
+  tresources.push(
+    <div>
+      <PopupExample /><br />
+    </div>
+  );
 
   let tbuildings = [];
   for (let i = 0; i < BuildingType.Wonder; i++) {
@@ -105,6 +122,7 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
         >
           {tbody}
         </Layout>
+
         <Pattern id="pat-0" link="https://placecats.com/59/59" />
         <Pattern id="pat-1" link="https://placecats.com/60/60" />
         <Pattern id="pat-2" link="https://placecats.com/61/61" />
