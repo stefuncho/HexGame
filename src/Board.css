@@ -1,3 +1,7 @@
+:root {
+  color-scheme: only light;
+}
+
 body {
     background-color: #c4c0ae;
 }
@@ -25,9 +29,15 @@ svg .board g:hover text {
 }
 
 svg .board g polygon {
-    stroke: #ebe6cf;
+    stroke: #d8d4bb;
     stroke-width: 0.2;
-    transition: fill-opacity .5s;
+    transition: fill-opacity .2s;
+}
+
+svg .available g polygon {
+    stroke: #ebe6cf;
+    stroke-width: 0.5;
+    transition: fill-opacity 1s;
 }
 
 svg .board g image {
@@ -86,11 +96,11 @@ svg .tr g:hover {
 }
 
 svg .eg g {
-    fill: #ebdfc0;
+    fill: #e6d19d;
 }
 
 svg .eg g:hover {
-    fill: #f8f4e9;
+    fill: #f5efdd;
 }
 
 svg .mo g {

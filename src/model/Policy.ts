@@ -1,5 +1,4 @@
 import { HexGame } from './HexGame';
-import { Pillars } from './Pillars';
 
 export enum PolicyType 
 {
@@ -18,7 +17,7 @@ export interface Scoring {
 export type Policy =
 {
     type: PolicyType;
-    req: Pillars;
+    req: number[];
     cost: number;
     score: Scoring;
 }

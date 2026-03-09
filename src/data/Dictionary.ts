@@ -1,4 +1,5 @@
-import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType, BuildingData, ResourcesEmpty } from "../model/Types.ts"
+import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType, BuildingData } from "../model/Types.ts"
+import { PillarsEmpty, ResourcesEmpty } from "../model/Wallets.ts";
 import { Map } from "./Resources.mjs"
 
 export function LoadMap()
@@ -177,12 +178,9 @@ export const Policies : Array<Policy> =
 [
   {
     type: PolicyType.CityState,
-    req: { 
-      dict: { 
-        [PillarType.Government] : 2,
-        [PillarType.Population] : 1,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Government, 2)
+      .with(PillarType.Population, 1),
     cost: 15,
     score: (G, playerID) => {
         const player = G.players[playerID];
@@ -191,12 +189,9 @@ export const Policies : Array<Policy> =
   },
   {
     type: PolicyType.Monarchy,
-    req: { 
-      dict: { 
-        [PillarType.Government] : 2,
-        [PillarType.Food] : 1,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Government, 2)
+      .with(PillarType.Food, 1),
     cost: 15,
     score: (G, playerID) => {
         const player = G.players[playerID];
@@ -205,12 +200,9 @@ export const Policies : Array<Policy> =
   },
   {
     type: PolicyType.Oligarchy,
-    req: { 
-      dict: { 
-        [PillarType.Government] : 2,
-        [PillarType.Economic] : 1,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Government, 2)
+      .with(PillarType.Economic, 1),
     cost: 15,
     score: (G, playerID) => {
         return 0; // TODO 1/2(4+ players) pt for every Golden Age or Achievement
@@ -218,12 +210,9 @@ export const Policies : Array<Policy> =
   },
   {
     type: PolicyType.Republic,
-    req: { 
-      dict: { 
-        [PillarType.Government] : 3,
-        [PillarType.Culture] : 1,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Government, 3)
+      .with(PillarType.Culture, 1),
     cost: 20,
     score: (G, playerID) => {
         const player = G.players[playerID];
@@ -232,12 +221,9 @@ export const Policies : Array<Policy> =
   },
   {
     type: PolicyType.Theocracy,
-    req: { 
-      dict: { 
-        [PillarType.Government] : 2,
-        [PillarType.Military] : 1,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Government, 2)
+      .with(PillarType.Military, 1),
     cost: 15,
     score: (G, playerID) => {
         const player = G.players[playerID];
@@ -246,11 +232,8 @@ export const Policies : Array<Policy> =
   },
   {
     type: PolicyType.Tyranny,
-    req: { 
-      dict: { 
-        [PillarType.Military] : 2,
-      } 
-    },
+    req: PillarsEmpty
+      .with(PillarType.Military, 2),
     cost: 5,
     score: (G, playerID) => {
         return 0; // TODO: 2/3(4+ players) pts for each controlled region

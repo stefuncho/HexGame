@@ -1,5 +1,5 @@
 import { Building } from "./Building.ts"
-import { PlayerResource } from "./PlayerState.ts";
+import { HexGame } from "./HexGame.ts";
 export * from "./Pillars.ts"
 export * from "./Building.ts"
 
@@ -19,8 +19,6 @@ export enum ResourceType {
     Population = 4,
     Count = 5,
 }
-
-export const ResourcesEmpty : number[] = Array(ResourceType.Count);
 
 export enum CellType {
     Normal = 0,
@@ -52,6 +50,8 @@ export type BuildingData = {
     cost:  number[],
     tariffValue: number,
 }
+
+export type hexgameAction = (G : HexGame, pid : string) => void;
 
 export function CreateCell(id : number, regionId : number, cell? : CellType) : Cell {
     return {

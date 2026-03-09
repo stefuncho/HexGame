@@ -60,7 +60,8 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
       const cell = G.cells[i][j];
       if (cell !== null) {
         tbody.push(
-          <Hexagon q={i} r={j - Math.floor(i / 2)} s={0} className={REGIONS[cell.regionId]} onClick={(e, h) => onClick(e, h)}>
+          // <div className={canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "available" : ""}>
+          <Hexagon q={i} r={j - Math.floor(i / 2)} s={0} className={REGIONS[cell.regionId] + " " + (canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "available" : "")} onClick={(e, h) => onClick(e, h)}>
             {cell.building !== undefined
               ? (
                 <image href={BuildingTypes[cell.building.type].image}
@@ -74,7 +75,7 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves }) => {
                   </title>
                 </image>
               )}
-            <text color="red">{canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "Y" : i + "," + j}</text>
+            {/* <text color="red">{canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "Y" : i + "," + j}</text> */}
           </Hexagon>
         );
       }

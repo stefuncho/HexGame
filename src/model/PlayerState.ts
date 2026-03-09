@@ -1,5 +1,4 @@
 import { Building } from './Building';
-import { Pillars } from './Pillars';
 import { PolicyType } from './Policy';
 import { Nullable, EnumDictionary, BuildingType } from './Types';
 
@@ -11,7 +10,7 @@ export type PlayerResource = {
 export interface PlayerState {
     points: number;
     resources: PlayerResource[];
-    pillars: Pillars;
+    pillars: number[];
     goods: [];
     buildings: Array<Building>;
     policy: Nullable<PolicyType>;

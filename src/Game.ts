@@ -1,8 +1,8 @@
-import { Building, BuildingType, CellType, ResourcesEmpty } from "./model/Types.ts";
+import { Building, BuildingType, CellType } from "./model/Types.ts";
+import { PillarsEmpty, ResourcesEmpty, satisfies } from "./model/Wallets.ts";
 import { BuildingTypes, LoadMap, Policies, TradeTokes } from "./data/Dictionary.ts";
 import { HexGame } from "./model/HexGame.ts";
 import { PlayerState, PlayerResource } from './model/PlayerState.ts';
-import { PillarsExt } from "./model/Pillars.ts";
 import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 import { Game } from "boardgame.io";
@@ -33,14 +33,15 @@ export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildi
 
     var row = G.cells[x];
 
-    for (var j = (i == 0) ? -2 : 0; j < 2; j++)
+    for (var j = (!i ? -1 : -x%2); j < 2 + (!i ? 0 : -x%2); j++)
     {
-      const y = cellPos[1] + j - x%2;
+      const y = cellPos[1] + j ;
 
       if (y < 0 || y >= row.length || row[y] === null)
         continue;
 
-      if (row[y].building !== undefined)//&& row[j].building.ownerId === playerId)
+      if (row[y].building !== undefined 
+        && row[y].building.ownerId === playerId)
         return true;
     }
   }
@@ -103,7 +104,7 @@ export const Hex : Game<HexGame> = {
       players[i] = {
         points: 0,
         resources: resources,
-        pillars: PillarsExt.create(),
+        pillars: [...PillarsEmpty],
         goods: [],
         buildings: [],
         policy: null,
@@ -119,7 +120,7 @@ export const Hex : Game<HexGame> = {
       };
     }
 
-    return { cells: cells, players: players };
+    return { cells: cells, players: players, tariff: 0 };
   },
 
   turn: {
@@ -136,12 +137,18 @@ export const Hex : Game<HexGame> = {
       if (playerData.availableBuildings[type] <= 0)
         return INVALID_MOVE;
 
-      if (!PlayerState.tryPay(playerData, BuildingTypes[type].cost))
+      if (!canBuild(G, [x, y], playerID, type))
+        return INVALID_MOVE;
+
+      const buildingData = BuildingTypes[type];
+
+      if (!PlayerState.tryPay(playerData, buildingData.cost))
         return INVALID_MOVE;
 
       playerData.availableBuildings[type]--;
       playerData.buildings.push(newBuilding);
       (G.cells[x][y] as Cell).building = newBuilding;
+      G.tariff += buildingData.tariffValue;
     },
     
     produce: ({ G, playerID }, type) =>
@@ -159,7 +166,7 @@ export const Hex : Game<HexGame> = {
       const playerData = G.players[playerID];
       const policy = Policies[type];
 
-      if (!PillarsExt.satisfies(playerData.pillars, policy.req))
+      if (!satisfies(playerData.pillars, policy.req))
         return INVALID_MOVE;
 
       const cost = ResourcesEmpty.with(ResourceType.Idea, policy.cost);
