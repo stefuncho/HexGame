@@ -6,5 +6,7 @@ import { PlayerState } from './PlayerState';
 export interface HexGame extends Game {
     cells: Nullable<Cell>[][],
     players: { [ playerID : string ] : PlayerState },
-    tariff: number;
+    tariff: number,
+    deck: string[][],
+    market: string[][],
 }

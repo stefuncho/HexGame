@@ -10,6 +10,30 @@ td {
     vertical-align: top;
 }
 
+.menu {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.menu-item {
+  cursor: pointer;
+  padding: 5px;
+  height: 28px;
+  border-bottom: 1px solid rgb(187, 187, 187);
+}
+
+.menu-item:hover {
+  color: #2980b9;
+}
+
+.card {
+  width: 130px;
+  height: 150px;
+  cursor: pointer;
+}
+
 .small-btn {
     height: 1.5em;
 }
@@ -35,9 +59,25 @@ svg .board g polygon {
 }
 
 svg .available g polygon {
-    stroke: #ebe6cf;
+    stroke: #67b472;
     stroke-width: 0.5;
     transition: fill-opacity 1s;
+}
+
+svg .unavailable g polygon {
+    fill-opacity: 50%;
+    stroke-opacity: 50%;
+    filter: saturate(60%);
+}
+
+svg .taken g polygon {
+    fill-opacity: 50%;
+    stroke-opacity: 50%;
+    filter: saturate(60%);
+}
+
+svg .unavailable g image {
+    filter: saturate(0%);
 }
 
 svg .board g image {

@@ -10,7 +10,7 @@ export function LoadMap()
   var id = 0;
 
   (Map as string).split("\n").forEach(
-    cellData => 
+    cellData =>
     {
       if (cellData.length < 4 || cellData[0] === '\\' || cellData[0] === '/')
         return;
@@ -22,7 +22,7 @@ export function LoadMap()
   return board;
 }
 
-export const PlayerInfo = 
+export const PlayerInfo =
 {
   "0": {
     id: 0,
@@ -56,7 +56,7 @@ export const PlayerInfo =
   },
 };
 
-export const TradeTokes = 
+export const TradeTokes =
 [
   {
     id: 0,
@@ -135,13 +135,15 @@ export const TradeTokes =
   },
 ];
 
-export const BuildingTypes : BuildingData[] = 
+export const BuildingTypes : BuildingData[] =
 [
   {
     id: 0,
     image: "building-icons/City.png",
     title: "Miasto",
     cost: ResourcesEmpty.with(ResourceType.Population, 2).with(ResourceType.Stone, 4),
+    score: 1,
+    influence: 2,
     tariffValue: 5,
   },
   {
@@ -149,6 +151,8 @@ export const BuildingTypes : BuildingData[] =
     image: "building-icons/Port.png",
     title: "Port",
     cost: ResourcesEmpty.with(ResourceType.Population, 2).with(ResourceType.Stone, 4),
+    score: 1,
+    influence: 2,
     tariffValue: 10,
   },
   {
@@ -156,6 +160,8 @@ export const BuildingTypes : BuildingData[] =
     image: "building-icons/Wonder.png",
     title: "Farma",
     cost: ResourcesEmpty,
+    score: 0,
+    influence: 1,
     tariffValue: 0,
   },
   {
@@ -163,6 +169,8 @@ export const BuildingTypes : BuildingData[] =
     image: "building-icons/Wonder.png",
     title: "Warsztat",
     cost: ResourcesEmpty,
+    score: 0,
+    influence: 1,
     tariffValue: 0,
   },
   {
@@ -170,11 +178,13 @@ export const BuildingTypes : BuildingData[] =
     image: "building-icons/Wonder.png",
     title: "Cud",
     cost: ResourcesEmpty,
+    score: 1,
+    influence: 2,
     tariffValue: 0,
   },
 ];
 
-export const Policies : Array<Policy> = 
+export const Policies : Array<Policy> =
 [
   {
     type: PolicyType.CityState,

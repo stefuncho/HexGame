@@ -7,6 +7,8 @@ import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
 import { Game } from "boardgame.io";
 import { INVALID_MOVE } from "boardgame.io/core";
+import { Card, DeckType, TechnologyCard } from "./model/Card.ts";
+import { cardDictionary } from "./data/CardDictionary.ts";
 
 
 export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildingType: BuildingType) =>
@@ -18,7 +20,7 @@ export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildi
 
   if (cell.type === CellType.Port && buildingType !== BuildingType.Port)
     return false;
-  
+
   if (cell.type !== CellType.Port && buildingType === BuildingType.Port)
     return false;
 
@@ -40,7 +42,7 @@ export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildi
       if (y < 0 || y >= row.length || row[y] === null)
         continue;
 
-      if (row[y].building !== undefined 
+      if (row[y].building !== undefined
         && row[y].building.ownerId === playerId)
         return true;
     }
@@ -49,8 +51,36 @@ export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildi
   return false;
 }
 
+const scoreEmpire = (G : HexGame) => {
+  let influece : { [ playerId : string ] : any } = {};
+  let regionScore = {};
+
+  for (let i = 0; i < G.cells.length; i++) {
+    for (let cell of G.cells[i]) {
+      if (!cell || !cell.building)
+        continue;
+
+      const ownerId = cell.building.ownerId;
+      const regionId = cell.regionId;
+
+      if (!influece[ownerId])
+        influece[ownerId] = {};
+
+      if (!influece[ownerId][regionId])
+        influece[ownerId][regionId] = 0;
+
+      influece[ownerId][regionId] += BuildingTypes[cell.building.type].influence;
+
+      if (!regionScore[regionId])
+        regionScore[regionId] = 0;
+
+      regionScore[regionId] += BuildingTypes[cell.building.type].score;
+    }
+  }
+}
+
 export const Hex : Game<HexGame> = {
-  setup: ({ random, ctx }) => 
+  setup: ({ random, ctx }) =>
   {
     var tokens : number[] = [];
     var map = LoadMap() as Nullable<Cell>[][];
@@ -88,6 +118,35 @@ export const Hex : Game<HexGame> = {
       }
     }
 
+    const deck : string[][] = Array(DeckType.Count);
+    const market : string[][] = Array(DeckType.Count);
+
+    for (i = 0; i < DeckType.Count; i++) {
+      deck[i] = [];
+    }
+
+    market[DeckType.Technology] = Array(5);
+    market[DeckType.Build] = Array(5);
+    market[DeckType.Population] = Array(2);
+    market[DeckType.Tariff] = Array(2);
+
+    Object.keys(cardDictionary).forEach((key) => {
+      const card : Card = cardDictionary[key];
+      deck[card.deck].push(key);
+    });
+
+    for (i = 0; i < DeckType.Count; i++)
+      deck[i] = random.Shuffle(deck[i]);
+
+    for (i = 0; i < DeckType.Count; i++) {
+      for (j = 0; j < market[i].length; j++)
+      {
+        const card = deck[i].pop();
+        if (card !== undefined)
+          market[i][j] = card;
+      }
+    }
+
     var players : { [ playerID : string ] : PlayerState } = {};
 
     for (i = 0; i < ctx.numPlayers; i++)
@@ -107,9 +166,10 @@ export const Hex : Game<HexGame> = {
         pillars: [...PillarsEmpty],
         goods: [],
         buildings: [],
+        cards: [],
         policy: null,
         policyPower: false,
-        availableBuildings: 
+        availableBuildings:
         {
           [BuildingType.City] : 12,
           [BuildingType.Port] : 3,
@@ -120,7 +180,13 @@ export const Hex : Game<HexGame> = {
       };
     }
 
-    return { cells: cells, players: players, tariff: 0 };
+    return {
+      cells: cells,
+      players: players,
+      tariff: 0,
+      deck: deck,
+      market: market
+    };
   },
 
   turn: {
@@ -150,7 +216,7 @@ export const Hex : Game<HexGame> = {
       (G.cells[x][y] as Cell).building = newBuilding;
       G.tariff += buildingData.tariffValue;
     },
-    
+
     produce: ({ G, playerID }, type) =>
     {
       const playerData = G.players[playerID];
@@ -187,6 +253,28 @@ export const Hex : Game<HexGame> = {
         return INVALID_MOVE;
 
       playerData.resources[ResourceType.Population].value += 2;
+    },
+
+    research: ({ G, playerID }, index : number) =>
+    {
+      const playerData = G.players[playerID];
+      const cost = ResourcesEmpty.with(ResourceType.Idea, 5);
+      const cardId = G.market[DeckType.Technology][index];
+
+      if (cardId === undefined)
+        return INVALID_MOVE;
+
+      const card :TechnologyCard = cardDictionary[cardId];
+
+      if (card.requirements !== undefined && !satisfies(playerData.pillars, card.requirements))
+        return INVALID_MOVE;
+
+      if (!PlayerState.tryPay(playerData, cost))
+        return INVALID_MOVE;
+
+      playerData.cards.push(cardId);
+      G.market[DeckType.Technology][index] = undefined;
+      card.onPlay && card.onPlay(G, playerID);
     },
   },
 };

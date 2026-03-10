@@ -1,4 +1,5 @@
 import { Building } from './Building';
+import { Card } from './Card';
 import { PolicyType } from './Policy';
 import { Nullable, EnumDictionary, BuildingType } from './Types';
 
@@ -13,6 +14,7 @@ export interface PlayerState {
     pillars: number[];
     goods: [];
     buildings: Array<Building>;
+    cards: string[];
     policy: Nullable<PolicyType>;
     policyPower: boolean;
     availableBuildings: EnumDictionary<BuildingType, number>;
@@ -26,7 +28,8 @@ export namespace PlayerState {
         }
 
         for (let type in cost) {
-            self.resources[type].value -= cost[type];
+            if (cost[type])
+                self.resources[type].value -= cost[type];
         }
 
         return true;
@@ -34,12 +37,12 @@ export namespace PlayerState {
 
     export function canAfford(self: PlayerState, cost: number[]) : boolean {
         for (let type in cost) {
-            if (cost[type] > self.resources[type].value)
+            if (cost[type] && cost[type] > self.resources[type].value)
             {
                 return false;
             }
         }
-        
+
         return true;
     }
 }

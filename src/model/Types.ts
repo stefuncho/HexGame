@@ -48,6 +48,8 @@ export type BuildingData = {
     image: string,
     title: string,
     cost:  number[],
+    score: number,
+    influence: number,
     tariffValue: number,
 }
 

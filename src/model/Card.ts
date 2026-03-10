@@ -4,7 +4,17 @@ import { HexGame } from "./HexGame";
 import { PillarType } from "./Pillars";
 import { BuildingTypes } from '../data/Dictionary';
 
+export enum DeckType {
+    Technology = 0,
+    Build = 1,
+    Population = 2,
+    Tariff = 3,
+    Count = 4,
+}
+
 export class Card {
+    public deck: DeckType;
+
     public title: string;
     public description: string;
 
@@ -15,15 +25,30 @@ export class Card {
     public onPlay?(G : HexGame, pid : string);
 }
 
-export class TechnologyCard extends Card {
-    public score : number = 0;
+export interface TechnologyCardParams {
+  title : string, 
+  description: string,
+  isStarter?:boolean,
+  provide: number[],
+  requirements?: number[],
+  score? : number, 
+  onPlay? : hexgameAction, 
+  onGameEnd? : hexgameAction,
+}
 
-    constructor(title : string, description: string, provide: number[], requirements?: number[],
-            score? : number, onPlay? : hexgameAction, onGameEnd? : hexgameAction) {
+export class TechnologyCard extends Card {
+    public override deck = DeckType.Technology;
+
+    public score : number = 0;
+    public isStarter : boolean;
+
+    constructor({ title, description, provide, requirements, isStarter = false,
+            score, onPlay, onGameEnd } : TechnologyCardParams) {
         super();
 
         this.title = title;
         this.description = description;
+        this.isStarter = isStarter;
         this.provide = provide;
         this.requirements = requirements;
         this.score = score;
@@ -33,6 +58,7 @@ export class TechnologyCard extends Card {
 }
 
 export class BuildCard extends Card {
+    public override deck = DeckType.Build;
     public cost: number[];
 }
 
