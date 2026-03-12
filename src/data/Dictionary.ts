@@ -56,7 +56,7 @@ export const PlayerInfo =
   },
 };
 
-export const TradeTokes =
+export const TradeTokens =
 [
   {
     id: 0,

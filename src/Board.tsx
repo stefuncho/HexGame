@@ -1,4 +1,4 @@
-﻿import {
+import {
   HexGrid,
   Layout,
   Hexagon,
@@ -9,13 +9,13 @@
 import 'reactjs-popup/dist/index.css';
 import './Board.css';
 import './model/Types.ts';
-import { TradeTokes, BuildingTypes, PlayerInfo } from './data/Dictionary.ts';
+import { TradeTokens, BuildingTypes, PlayerInfo } from './data/Dictionary.ts';
 import { BuildingType, Cell, ResourceType } from './model/Types.ts';
 import { HexGame } from "./model/HexGame.ts";
 import { BoardProps } from "boardgame.io/dist/types/packages/react";
 import Popup from "reactjs-popup";
 import { canBuild } from "./Game.ts";
-import { Card, DeckType } from "./model/Card.ts";
+import { Card, DeckType, DeckTypeNames } from "./model/Card.ts";
 import { cardDictionary } from "./data/CardDictionary.ts";
 import { useRef, useState } from "react";
 
@@ -145,9 +145,9 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
                   <title>{BuildingTypes[cell.building.type].title + " " + PlayerInfo[cell.building.ownerId].title}</title>
                 </image>
               ) : (
-                  <image href={cell.resourceId >= 0 ? TradeTokes[cell.resourceId].image : null}>
+                  <image href={cell.resourceId >= 0 ? TradeTokens[cell.resourceId].image : null}>
                     <title>
-                      {cell.resourceId >= 0 ? TradeTokes[cell.resourceId].title : null}
+                      {cell.resourceId >= 0 ? TradeTokens[cell.resourceId].title : null}
                     </title>
                   </image>
               )}
@@ -240,6 +240,8 @@ function renderMarket(G: HexGame) : any[] {
 
   for (let type = 0; type < DeckType.Count; type++) {
     const market = G.market[type];
+    result.push(<b>{DeckTypeNames[type]}</b>)
+    result.push(<br/>)
 
     for (let i = 0; i < market.length; i++) {
       if (market[i] === undefined)

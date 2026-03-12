@@ -32,6 +32,9 @@ td {
   width: 130px;
   height: 150px;
   cursor: pointer;
+  font-size: .75rem;
+  white-space: pre-wrap;
+  vertical-align: middle;
 }
 
 .small-btn {

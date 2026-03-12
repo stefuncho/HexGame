@@ -1,6 +1,6 @@
 import { Building, BuildingType, CellType } from "./model/Types.ts";
 import { PillarsEmpty, ResourcesEmpty, satisfies } from "./model/Wallets.ts";
-import { BuildingTypes, LoadMap, Policies, TradeTokes } from "./data/Dictionary.ts";
+import { BuildingTypes, LoadMap, Policies, TradeTokens } from "./data/Dictionary.ts";
 import { HexGame } from "./model/HexGame.ts";
 import { PlayerState, PlayerResource } from './model/PlayerState.ts';
 import { Cell, Nullable } from "./model/Types.ts"
@@ -85,7 +85,7 @@ export const Hex : Game<HexGame> = {
     var tokens : number[] = [];
     var map = LoadMap() as Nullable<Cell>[][];
 
-    for (var i = 0; i < TradeTokes.length; i++)
+    for (var i = 0; i < TradeTokens.length; i++)
       for (var j = 0; j < 5; j++)
         tokens.push(i);
 
@@ -169,6 +169,9 @@ export const Hex : Game<HexGame> = {
         cards: [],
         policy: null,
         policyPower: false,
+        tariffProduction: 0,
+        taxProduction: 0,
+        unrest: 0,
         availableBuildings:
         {
           [BuildingType.City] : 12,

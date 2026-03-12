@@ -1,5 +1,4 @@
 import { Building } from './Building';
-import { Card } from './Card';
 import { PolicyType } from './Policy';
 import { Nullable, EnumDictionary, BuildingType } from './Types';
 
@@ -12,12 +11,15 @@ export interface PlayerState {
     points: number;
     resources: PlayerResource[];
     pillars: number[];
-    goods: [];
+    goods: number[];
     buildings: Array<Building>;
     cards: string[];
     policy: Nullable<PolicyType>;
     policyPower: boolean;
     availableBuildings: EnumDictionary<BuildingType, number>;
+    tariffProduction: number;
+    taxProduction: number;
+    unrest: number;
 }
 
 export namespace PlayerState {
