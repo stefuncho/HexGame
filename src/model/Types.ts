@@ -20,6 +20,12 @@ export enum ResourceType {
     Count = 5,
 }
 
+export function isBase(type : ResourceType) : boolean {
+    return type === ResourceType.Stone
+        || type === ResourceType.Food
+        || type === ResourceType.Idea;
+}
+
 export enum CellType {
     Normal = 0,
     Goods = 1,

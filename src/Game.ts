@@ -198,10 +198,9 @@ export const Hex : Game<HexGame> = {
   },
 
   moves: {
-    build: ({ G, playerID }, x, y, type) =>
+    build: ({ G, playerID }, x, y, type, cardIndex? : number) =>
     {
       const playerData = G.players[playerID];
-      const newBuilding : Building = { type: type, ownerId: playerID };
 
       if (playerData.availableBuildings[type] <= 0)
         return INVALID_MOVE;
@@ -213,6 +212,8 @@ export const Hex : Game<HexGame> = {
 
       if (!PlayerState.tryPay(playerData, buildingData.cost))
         return INVALID_MOVE;
+
+      const newBuilding : Building = { type: type, ownerId: playerID };
 
       playerData.availableBuildings[type]--;
       playerData.buildings.push(newBuilding);

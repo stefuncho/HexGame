@@ -1,6 +1,6 @@
 import { Building } from './Building';
 import { PolicyType } from './Policy';
-import { Nullable, EnumDictionary, BuildingType } from './Types';
+import { Nullable, EnumDictionary, BuildingType, isBase, ResourceType } from './Types';
 
 export type PlayerResource = {
     value: number;
@@ -29,21 +29,44 @@ export namespace PlayerState {
             return false;
         }
 
+        let missingResource = 0;
+
         for (let type in cost) {
-            if (cost[type])
-                self.resources[type].value -= cost[type];
+            const typeCost = cost[type];
+
+            if (!typeCost)
+                continue;
+
+            const selfTypeValue = self.resources[type].value;
+
+            if (selfTypeValue >= typeCost)
+                self.resources[type].value -= typeCost;
+            else {
+                missingResource += typeCost - selfTypeValue;
+                self.resources[type].value = 0;
+            }
         }
+
+        self.resources[ResourceType.Money].value -= 2 * missingResource;
 
         return true;
     }
 
     export function canAfford(self: PlayerState, cost: number[]) : boolean {
-        for (let type in cost) {
+        let missingResource = 0;
+
+        for (let type = 0; type < cost.length; type++) {
             if (cost[type] && cost[type] > self.resources[type].value)
             {
-                return false;
+                if (isBase(type))
+                    missingResource += cost[type] - self.resources[type].value
+                else
+                    return false;
             }
         }
+
+        if (missingResource > 2 * self.resources[ResourceType.Money].value)
+            return false;
 
         return true;
     }
