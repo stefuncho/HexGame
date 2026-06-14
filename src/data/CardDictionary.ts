@@ -1,9 +1,9 @@
 import { ResourceType } from './../model/Types';
 import { PillarType } from './../model/Pillars';
-import { CityCard, FarmCard, PopulationCard, PortCard, ProjectCard, TariffCard, TechnologyCard, WorkshopCard } from "../model/Card";
+import { Card, CityCard, FarmCard, PopulationCard, PortCard, ProjectCard, TariffCard, TechnologyCard, WorkshopCard } from "../model/Card";
 import { PillarsEmpty } from '../model/Wallets';
 
-export const cardDictionary = {
+export const cardDictionary : Record<string, Card> = {
     'b7493d61-0580-4f21-b72e-805b2f56e026':
         new TechnologyCard({
             title: 'Osada rolnicza',

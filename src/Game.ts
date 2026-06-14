@@ -1,15 +1,14 @@
-import { Building, BuildingType, CellType } from "./model/Types.ts";
+import { Building, BuildingType, CellType, PillarType } from "./model/Types.ts";
 import { PillarsEmpty, ResourcesEmpty, satisfies } from "./model/Wallets.ts";
-import { BuildingTypes, LoadMap, Policies, TradeTokens } from "./data/Dictionary.ts";
-import { HexGame } from "./model/HexGame.ts";
+import { BuildingTypes, LoadMap, Policies, RegionCount, TradeTokens } from "./data/Dictionary.ts";
+import { HexGame, Scoreboard } from "./model/HexGame.ts";
 import { PlayerState, PlayerResource } from './model/PlayerState.ts';
 import { Cell, Nullable } from "./model/Types.ts"
 import { CopyCell, ResourceType } from "./model/Types.ts";
-import { Game } from "boardgame.io";
+import { Ctx, Game } from "boardgame.io";
 import { INVALID_MOVE } from "boardgame.io/core";
-import { Card, DeckType, TechnologyCard } from "./model/Card.ts";
+import { BuildingCard, Card, DeckType, PopulationCard, ProjectCard, TechnologyCard } from "./model/Card.ts";
 import { cardDictionary } from "./data/CardDictionary.ts";
-
 
 export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildingType: BuildingType) =>
 {
@@ -51,32 +50,97 @@ export const canBuild = (G: HexGame, cellPos: number[], playerId: string, buildi
   return false;
 }
 
-const scoreEmpire = (G : HexGame) => {
-  let influece : { [ playerId : string ] : any } = {};
-  let regionScore = {};
+const playCard = (G : HexGame, playerID : string, deck : DeckType, index: number) => {
+  const cardId = G.market[deck][index];
+  const card = cardDictionary[cardId];
+
+  G.market[deck][index] = undefined;
+  G.players[playerID].cards.push(cardId);
+  card.onPlay && card.onPlay(G, playerID);
+}
+
+const scoreEmpire = (G : HexGame, ctx: Ctx) => {
+  const influence : number[][] = Array(ctx.numPlayers);
+  const regionScore : {[key: number]: number} = {};
+  const scoreboard : Scoreboard = {
+    influenceByPlayerByRegion: influence,
+    scoreByPlayerByRegion: Array.from({ length: ctx.numPlayers}, () => Array(RegionCount)),
+    policyScoreByPlayer: Array(ctx.numPlayers),
+  };
 
   for (let i = 0; i < G.cells.length; i++) {
     for (let cell of G.cells[i]) {
       if (!cell || !cell.building)
         continue;
 
-      const ownerId = cell.building.ownerId;
+      const ownerId = Number.parseInt(cell.building.ownerId);
       const regionId = cell.regionId;
 
-      if (!influece[ownerId])
-        influece[ownerId] = {};
+      if (!influence[ownerId])
+        influence[ownerId] = Array(RegionCount);
 
-      if (!influece[ownerId][regionId])
-        influece[ownerId][regionId] = 0;
+      if (!influence[ownerId][regionId])
+        influence[ownerId][regionId] = 0;
 
-      influece[ownerId][regionId] += BuildingTypes[cell.building.type].influence;
+      influence[ownerId][regionId] += BuildingTypes[cell.building.type].influence;
 
-      if (!regionScore[regionId])
+      if (regionScore[regionId] === undefined)
         regionScore[regionId] = 0;
 
       regionScore[regionId] += BuildingTypes[cell.building.type].score;
     }
   }
+
+  for (let i = 0; i < RegionCount; i++) {
+    const regionInfluence : Array<{ids: Array<number>, influence: number}>
+        = influence.reduce((acc : Array<{ids: Array<number>, influence: number}>, currentValue, currentIndex) => {
+      const currentInfluence = currentValue?.[i] ?? 0;
+
+      for (let j=0; j < acc.length; j++)
+      {
+        if (currentInfluence > acc[j].influence)
+        {
+          acc.splice(j, 0, {ids: [currentIndex], influence: currentInfluence});
+          return acc;
+        }
+        else if (currentInfluence === acc[j].influence)
+        {
+          acc[j].ids.push(currentIndex);
+          return acc;
+        }
+      }
+
+      acc.push({ids: [currentIndex], influence: currentInfluence});
+      return acc;
+    }, []);
+
+    if (regionInfluence[0].influence > 0) {
+      regionInfluence[0].ids.forEach(pid => {
+        const playerScore = regionScore[i] + 3;
+        G.players[pid].points += playerScore;
+        scoreboard.scoreByPlayerByRegion[pid][i] = playerScore;
+      });
+    }
+
+    if (regionInfluence.length > 1 && regionInfluence[1].influence > 0
+      && regionInfluence[1].ids.length === 1
+    ) {
+        const pid = regionInfluence[1].ids[0];
+        G.players[pid].points += 2;
+        scoreboard.scoreByPlayerByRegion[pid][i] = 2;
+    }
+  }
+
+  for (let i = 0; i < ctx.numPlayers; i++) {
+    const policy = G.players[i].policy;
+    if (policy) {
+      var policyScore = Policies[policy].score(G, i);
+      G.players[i].points += policyScore;
+      scoreboard.policyScoreByPlayer[i] = policyScore;
+    }
+  }
+
+  G.scoreboard.push(scoreboard);
 }
 
 export const Hex : Game<HexGame> = {
@@ -188,7 +252,8 @@ export const Hex : Game<HexGame> = {
       players: players,
       tariff: 0,
       deck: deck,
-      market: market
+      market: market,
+      scoreboard: [],
     };
   },
 
@@ -198,7 +263,7 @@ export const Hex : Game<HexGame> = {
   },
 
   moves: {
-    build: ({ G, playerID }, x, y, type, cardIndex? : number) =>
+    build: ({ G, playerID }, x, y, type : BuildingType, cardIndex? : number) =>
     {
       const playerData = G.players[playerID];
 
@@ -210,6 +275,20 @@ export const Hex : Game<HexGame> = {
 
       const buildingData = BuildingTypes[type];
 
+      let card : BuildingCard;
+
+      if (cardIndex) {
+        const cardId = G.market[DeckType.Build][cardIndex];
+
+        if (cardId === undefined)
+          return INVALID_MOVE;
+
+        card = cardDictionary[cardId] as BuildingCard;
+
+        if (card.type !== type)
+          return INVALID_MOVE;
+      }
+
       if (!PlayerState.tryPay(playerData, buildingData.cost))
         return INVALID_MOVE;
 
@@ -219,6 +298,9 @@ export const Hex : Game<HexGame> = {
       playerData.buildings.push(newBuilding);
       (G.cells[x][y] as Cell).building = newBuilding;
       G.tariff += buildingData.tariffValue;
+
+      if (cardIndex)
+        playCard(G, playerID, DeckType.Build, cardIndex);
     },
 
     produce: ({ G, playerID }, type) =>
@@ -248,15 +330,59 @@ export const Hex : Game<HexGame> = {
       playerData.policyPower = true;
     },
 
-    breed: ({ G, playerID }) =>
+    playTariffCard: ({ G, playerID }, cardIndex : number) =>
+    {
+      const cardId = G.market[DeckType.Tariff][cardIndex];
+      if (cardId === undefined)
+        return INVALID_MOVE;
+
+      playCard(G, playerID, DeckType.Tariff, cardIndex);
+    },
+
+    tariff: ({ G, playerID }, isTax : boolean) =>
     {
       const playerData = G.players[playerID];
-      const cost = ResourcesEmpty.with(ResourceType.Food, 12);
+
+      if (!G.market[DeckType.Tariff].every(x => !x))
+        return INVALID_MOVE;
+
+      if (isTax)
+        playerData.resources[ResourceType.Money].value
+          += playerData.pillars[PillarType.Government]
+            + playerData.resources[ResourceType.Population].value
+            + playerData.tariffProduction;
+      else
+        playerData.resources[ResourceType.Money].value
+          += PlayerState.getCities(playerData).length
+            + playerData.goods.length
+            + playerData.tariffProduction;
+    },
+
+    breed: ({ G, playerID }, cardIndex? : number) =>
+    {
+      const playerData = G.players[playerID];
+      let card : PopulationCard;
+
+      if (cardIndex) {
+        const cardId = G.market[DeckType.Population][cardIndex];
+
+        if (cardId === undefined)
+          return INVALID_MOVE;
+
+        card = cardDictionary[cardId] as PopulationCard;
+      }
+      else if (!G.market[DeckType.Population].every(x => !x))
+        return INVALID_MOVE;
+
+      const cost = ResourcesEmpty.with(ResourceType.Food, card ? card.foodCost : 12);
 
       if (!PlayerState.tryPay(playerData, cost))
         return INVALID_MOVE;
 
-      playerData.resources[ResourceType.Population].value += 2;
+      if (card)
+        playCard(G, playerID, DeckType.Population, cardIndex);
+      else
+        playerData.resources[ResourceType.Population].value += 2;
     },
 
     research: ({ G, playerID }, index : number) =>
@@ -268,7 +394,7 @@ export const Hex : Game<HexGame> = {
       if (cardId === undefined)
         return INVALID_MOVE;
 
-      const card :TechnologyCard = cardDictionary[cardId];
+      const card : TechnologyCard = cardDictionary[cardId] as TechnologyCard;
 
       if (card.requirements !== undefined && !satisfies(playerData.pillars, card.requirements))
         return INVALID_MOVE;
@@ -276,9 +402,28 @@ export const Hex : Game<HexGame> = {
       if (!PlayerState.tryPay(playerData, cost))
         return INVALID_MOVE;
 
-      playerData.cards.push(cardId);
-      G.market[DeckType.Technology][index] = undefined;
-      card.onPlay && card.onPlay(G, playerID);
+      playCard(G, playerID, DeckType.Technology, index);
     },
+
+    buildProject: ({ G, playerID }, index : number) =>
+    {
+      const playerData = G.players[playerID];
+      const cardId = G.market[DeckType.Build][index];
+
+      if (cardId === undefined)
+        return INVALID_MOVE;
+
+      const card : ProjectCard = cardDictionary[cardId] as ProjectCard;
+
+      if (card.requirements !== undefined && !satisfies(playerData.pillars, card.requirements))
+        return INVALID_MOVE;
+
+      if (!PlayerState.tryPay(playerData, card.cost))
+        return INVALID_MOVE;
+
+      playCard(G, playerID, DeckType.Build, index);
+    },
+
+    score: ({ G, ctx }) => scoreEmpire(G, ctx),
   },
 };

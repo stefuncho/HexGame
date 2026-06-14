@@ -70,4 +70,8 @@ export namespace PlayerState {
 
         return true;
     }
+
+    export function getCities(self: PlayerState) : Array<Building> {
+        return self.buildings.filter(x => x.type === BuildingType.City);
+    }
 }

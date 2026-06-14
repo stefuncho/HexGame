@@ -18,6 +18,7 @@ import { canBuild } from "./Game.ts";
 import { Card, DeckType, DeckTypeNames } from "./model/Card.ts";
 import { cardDictionary } from "./data/CardDictionary.ts";
 import { useRef, useState } from "react";
+import { PlayerResource, PlayerState } from "./model/PlayerState.ts";
 
 const REGIONS: { [regionId: number]: string } =
 {
@@ -46,8 +47,24 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
     moves.build(hex.q, hex.r + Math.floor(hex.q / 2), buildType);
     setState(State.Normal);
   }
+
   function onProduce(type: ResourceType) {
     moves.produce(type);
+  }
+
+  function onMarketClick(type: number, marketId: number) {
+    switch (type)
+    {
+      case DeckType.Technology:
+        moves.research(marketId);
+        return;
+
+      case DeckType.Build:
+        break;
+
+      case DeckType.Population:
+      case DeckType.Tariff:
+    }
   }
 
   const [state, setState] = useState(State.Normal);
@@ -114,7 +131,7 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
     </div>);
   };
 
-  function getHexClass(x, y, cell : Cell) : string {
+  function getHexClass(x : number, y : number, cell : Cell) : string {
     switch (state) {
       case State.Build:
         if (canBuild(G, [x, y], ctx.currentPlayer, buildType))
@@ -131,23 +148,24 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
   for (let i = 0; i < 25; i++) {
     for (let j = 0; j < 14; j++) {
 
-      const cell = G.cells[i][j];
+      const cell : Cell = G.cells[i]?.[j] as Cell;
       if (cell !== null) {
         let hexClass = getHexClass(i, j, cell);
+        let resourceId = cell.resourceId || -1;
 
         tbody.push(
           // <div className={canBuild(G, [i, j], ctx.currentPlayer, BuildingType.Farm) ? "available" : ""}>
           <Hexagon q={i} r={j - Math.floor(i / 2)} s={0} className={REGIONS[cell.regionId] + " " + hexClass} onClick={(e, h) => onClick(e, h)}>
             {cell.building !== undefined
               ? (
-                <image href={BuildingTypes[cell.building.type].image}
-                  filter={PlayerInfo[cell.building.ownerId].filter}>
-                  <title>{BuildingTypes[cell.building.type].title + " " + PlayerInfo[cell.building.ownerId].title}</title>
+                <image href={BuildingTypes[cell.building.type]?.image}
+                  filter={PlayerInfo[cell.building.ownerId]?.filter}>
+                  <title>{BuildingTypes[cell.building.type]?.title + " " + PlayerInfo[cell.building.ownerId].title}</title>
                 </image>
               ) : (
-                  <image href={cell.resourceId >= 0 ? TradeTokens[cell.resourceId].image : null}>
+                  <image href={resourceId >= 0 ? TradeTokens[resourceId]?.image : ''}>
                     <title>
-                      {cell.resourceId >= 0 ? TradeTokens[cell.resourceId].title : null}
+                      {resourceId >= 0 ? TradeTokens[resourceId]?.title : null}
                     </title>
                   </image>
               )}
@@ -158,22 +176,24 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
     }
   }
 
-  var resources = G.players[ctx.currentPlayer].resources;
-  var availableBuildings = G.players[ctx.currentPlayer].availableBuildings;
+  var playerData : PlayerState = G.players[ctx.currentPlayer] as PlayerState;
+  var resources = playerData.resources;
+  var availableBuildings = playerData.availableBuildings;
 
   let tresources = [];
   for (let i = 0; i < ResourceType.Count; i++) {
     const isPrimary = i < ResourceType.Money;
+    var resource : PlayerResource = resources[i] as PlayerResource;
 
     tresources.push(
       <>
         {isPrimary ? (
           <>
-            {ResourceType[i]}: {resources[i].value} (+{resources[i].production})
+            {ResourceType[i]}: {resource.value} (+{resource.production})
             <input type="image" src="StrategyGameIcons/Tools.png" alt="Produce" className="small-btn" onClick={(_) => onProduce(i)}></input>
           </>
         ) : (
-          <>{ResourceType[i]}: {resources[i].value}</>
+          <>{ResourceType[i]}: {resource.value}</>
         )}
         <br />
       </>
@@ -186,7 +206,7 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
     </div>
   );
 
-  let tmarket = renderMarket(G);
+  let tmarket = renderMarket(G, onMarketClick);
 
   return (
     <div>
@@ -235,23 +255,30 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
 
 export default HexBoard;
 
-function renderMarket(G: HexGame) : any[] {
+function renderMarket(G: HexGame, onMarketClick: (type: number, marketId: number) => void) : any[] {
+
   const result = [];
 
   for (let type = 0; type < DeckType.Count; type++) {
     const market = G.market[type];
+
+    if (market === undefined)
+      continue;
+
     result.push(<b>{DeckTypeNames[type]}</b>)
     result.push(<br/>)
 
     for (let i = 0; i < market.length; i++) {
-      if (market[i] === undefined)
+      const cardIndex = market[i];
+
+      if (cardIndex === undefined)
         continue;
 
-      const card: Card = cardDictionary[market[i]];
+      const card: Card = cardDictionary[cardIndex] as Card;
 
       result.push(
         <>
-          <button className="card"><b>{card.title}</b>:<br /> {card.description}</button>
+          <button className="card" onClick={(_) => onMarketClick(type, i)}><b>{card.title}</b>:<br /> {card.description}</button>
         </>
       );
     }

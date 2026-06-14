@@ -1,6 +1,9 @@
+import { PlayerState } from "../model/PlayerState.ts";
 import { Nullable, Cell, CreateCell, Policy, PolicyType, PillarType, BuildingType, ResourceType, BuildingData } from "../model/Types.ts"
 import { PillarsEmpty, ResourcesEmpty } from "../model/Wallets.ts";
 import { Map } from "./Resources.mjs"
+
+export const RegionCount = 7;
 
 export function LoadMap()
 {
@@ -15,14 +18,18 @@ export function LoadMap()
       if (cellData.length < 4 || cellData[0] === '\\' || cellData[0] === '/')
         return;
 
-      var cell = cellData.split(' ').map((a, _b, _c) => Number.parseInt(a));
-      board[cell[0]][cell[1]] = CreateCell(id++, cell[2]);
+      var cellCoords = cellData.split(' ').map((a, _b, _c) => Number.parseInt(a));
+      const row = cellCoords[0] ?? 0;
+      const col = cellCoords[1] ?? 0;
+      if (board[row]) {
+        board[row][col] = CreateCell(id++, cellCoords[2] ?? 0);
+      }
     }
   );
   return board;
 }
 
-export const PlayerInfo =
+export const PlayerInfo : Record<string, { id: number; filter: string; title: string }> =
 {
   "0": {
     id: 0,
@@ -193,7 +200,7 @@ export const Policies : Array<Policy> =
       .with(PillarType.Population, 1),
     cost: 15,
     score: (G, playerID) => {
-        const player = G.players[playerID];
+        const player = G.players[playerID] as PlayerState;
         return player.buildings.length;
       },
   },
@@ -204,8 +211,8 @@ export const Policies : Array<Policy> =
       .with(PillarType.Food, 1),
     cost: 15,
     score: (G, playerID) => {
-        const player = G.players[playerID];
-        return player.buildings.filter(b => b.type === BuildingType.Wonder).length;
+        const player = G.players[playerID] as PlayerState;
+        return player?.buildings.filter(b => b.type === BuildingType.Wonder).length;
       },
   },
   {
@@ -225,8 +232,8 @@ export const Policies : Array<Policy> =
       .with(PillarType.Culture, 1),
     cost: 20,
     score: (G, playerID) => {
-        const player = G.players[playerID];
-        return Math.floor(player.resources[ResourceType.Population].value / 2);
+        const player = G.players[playerID] as PlayerState;
+        return Math.floor(player.resources[ResourceType.Population]?.value ?? 0 / 2);
       },
   },
   {
@@ -236,7 +243,7 @@ export const Policies : Array<Policy> =
       .with(PillarType.Military, 1),
     cost: 15,
     score: (G, playerID) => {
-        const player = G.players[playerID];
+        const player = G.players[playerID] as PlayerState;
         return player.buildings.length;
       },
   },

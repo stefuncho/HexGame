@@ -3,6 +3,7 @@ import { ResourcesEmpty } from "./Wallets";
 import { HexGame } from "./HexGame";
 import { PillarType } from "./Pillars";
 import { BuildingTypes, TradeTokens } from '../data/Dictionary';
+import { PlayerState } from './PlayerState';
 
 export enum DeckType {
     Technology = 0,
@@ -28,19 +29,19 @@ export class Card {
     public requirements: number[];
     public provide: number[];
 
-    public onGameEnd?(G : HexGame, pid : string);
-    public onPlay?(G : HexGame, pid : string);
+    public onGameEnd?(G : HexGame, pid : string) : void;
+    public onPlay?(G : HexGame, pid : string) : void;
 }
 
 export interface TechnologyCardParams {
-  title : string,
-  description: string,
-  isStarter?:boolean,
-  provide: number[],
-  requirements?: number[],
-  score? : number,
-  onPlay? : hexgameAction,
-  onGameEnd? : hexgameAction,
+    title : string,
+    description: string,
+    isStarter?:boolean,
+    provide: number[],
+    requirements?: number[],
+    score? : number,
+    onPlay? : hexgameAction,
+    onGameEnd? : hexgameAction,
 }
 
 export class TechnologyCard extends Card {
@@ -70,9 +71,12 @@ export class BuildCard extends Card {
 }
 
 export class BuildingCard extends BuildCard {
+    public type : BuildingType;
+
     constructor(type : BuildingType) {
         super();
 
+        this.type = type;
         const data = BuildingTypes[type];
         this.cost = data.cost;
         this.title = data.title;
@@ -80,10 +84,10 @@ export class BuildingCard extends BuildCard {
 }
 
 export interface CityCardParams {
-  title : string,
-  description: string,
-  provide: number[],
-  onPlay : hexgameAction,
+    title : string,
+    description: string,
+    provide: number[],
+    onPlay : hexgameAction,
 }
 
 export class CityCard extends BuildingCard {
@@ -229,7 +233,7 @@ export class TariffCard extends Card {
 
         playerData.resources[ResourceType.Money].value
             += this.pillarsMultiplier * playerData.pillars[PillarType.Government]
-                + this.cityMultiplier * playerData.buildings.filter(x => x.type === BuildingType.City).length
+                + this.cityMultiplier * PlayerState.getCities(playerData).length
                 + this.goodsMultiplier * playerData.goods.length
                 + this.populationMultiplier * playerData.resources[ResourceType.Population].value
                 + this.taxMultiplier * playerData.taxProduction
