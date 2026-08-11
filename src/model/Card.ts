@@ -1,3 +1,4 @@
+import { BoardProps } from 'boardgame.io/dist/types/packages/react';
 import { BuildingType, hexgameAction, ResourceType } from './Types';
 import { ResourcesEmpty } from "./Wallets";
 import { HexGame } from "./HexGame";
@@ -208,12 +209,12 @@ export class TariffCard extends Card {
         this.deck = DeckType.Tariff;
         this.title = params.title;
         this.unrest = params.unrest;
-        this.pillarsMultiplier = params.pillarsMultiplier;
-        this.cityMultiplier = params.cityMultiplier;
-        this.goodsMultiplier = params.goodsMultiplier;
-        this.populationMultiplier = params.populationMultiplier;
-        this.taxMultiplier = params.taxMultiplier;
-        this.tariffMultiplier = params.tariffMultiplier;
+        this.pillarsMultiplier = params.pillarsMultiplier ?? 0;
+        this.cityMultiplier = params.cityMultiplier ?? 0;
+        this.goodsMultiplier = params.goodsMultiplier ?? 0;
+        this.populationMultiplier = params.populationMultiplier ?? 0;
+        this.taxMultiplier = params.taxMultiplier ?? 0;
+        this.tariffMultiplier = params.tariffMultiplier ?? 0;
 
         const addMultiplier = (i: number) => (i > 1 ? i + "x " : "");
 
@@ -232,7 +233,7 @@ export class TariffCard extends Card {
         const playerData = G.players[pid];
 
         playerData.resources[ResourceType.Money].value
-            += this.pillarsMultiplier * playerData.pillars[PillarType.Government]
+            += this.pillarsMultiplier * (playerData.pillars?.[PillarType.Government] ?? 0)
                 + this.cityMultiplier * PlayerState.getCities(playerData).length
                 + this.goodsMultiplier * playerData.goods.length
                 + this.populationMultiplier * playerData.resources[ResourceType.Population].value
@@ -264,7 +265,6 @@ export class PopulationCard extends Card {
 
     public override onPlay(G: HexGame, pid: string) {
         const playerData = G.players[pid];
-        playerData.resources[ResourceType.Food].value -= this.foodCost;
         playerData.resources[ResourceType.Population].value += this.populationGain;
     }
 }

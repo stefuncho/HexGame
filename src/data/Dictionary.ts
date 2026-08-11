@@ -164,7 +164,7 @@ export const BuildingTypes : BuildingData[] =
   },
   {
     id: 2,
-    image: "building-icons/Wonder.png",
+    image: "building-icons/Farm.png",
     title: "Farma",
     cost: ResourcesEmpty,
     score: 0,
@@ -173,7 +173,7 @@ export const BuildingTypes : BuildingData[] =
   },
   {
     id: 3,
-    image: "building-icons/Wonder.png",
+    image: "building-icons/Workshop.png",
     title: "Warsztat",
     cost: ResourcesEmpty,
     score: 0,

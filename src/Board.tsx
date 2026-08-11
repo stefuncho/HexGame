@@ -60,10 +60,16 @@ export const HexBoard: React.FC<HexBoardProps> = ({ ctx, G, moves, events }) => 
         return;
 
       case DeckType.Build:
-        break;
+        //moves.build(marketId);
+        return;
 
       case DeckType.Population:
+        moves.breed(marketId);
+        return;
+
       case DeckType.Tariff:
+        moves.playTariffCard(marketId);
+        return;
     }
   }
 

@@ -59,6 +59,36 @@ const playCard = (G : HexGame, playerID : string, deck : DeckType, index: number
   card.onPlay && card.onPlay(G, playerID);
 }
 
+const pushMarket = (market : string[][]) => {
+
+    for (var i = 0; i < DeckType.Count; i++) {
+      for (var j = 0; j < market[i].length; j++)
+        for (var k = 0; k < j; k++)
+        {
+          if (market[i][k] !== undefined)
+            continue;
+
+          market[i][k] = market[i][k + 1];
+          market[i][k + 1] = undefined;
+        }
+    }
+}
+
+const refillMarket = (deck : string[][], market : string[][]) => {
+
+    for (var i = 0; i < DeckType.Count; i++) {
+      for (var j = 0; j < market[i].length; j++)
+      {
+        if (market[i][j] !== undefined)
+          continue;
+
+        const card = deck[i].pop();
+        if (card !== undefined)
+          market[i][j] = card;
+      }
+    }
+}
+
 const scoreEmpire = (G : HexGame, ctx: Ctx) => {
   const influence : number[][] = Array(ctx.numPlayers);
   const regionScore : {[key: number]: number} = {};
@@ -202,14 +232,7 @@ export const Hex : Game<HexGame> = {
     for (i = 0; i < DeckType.Count; i++)
       deck[i] = random.Shuffle(deck[i]);
 
-    for (i = 0; i < DeckType.Count; i++) {
-      for (j = 0; j < market[i].length; j++)
-      {
-        const card = deck[i].pop();
-        if (card !== undefined)
-          market[i][j] = card;
-      }
-    }
+    refillMarket(deck, market);
 
     var players : { [ playerID : string ] : PlayerState } = {};
 
@@ -260,6 +283,11 @@ export const Hex : Game<HexGame> = {
   turn: {
     minMoves: 1,
     maxMoves: 1,
+    onEnd: ({ G, ctx }) =>
+    {
+      pushMarket(G.market);
+      refillMarket(G.deck, G.market);
+    }
   },
 
   moves: {
@@ -363,7 +391,7 @@ export const Hex : Game<HexGame> = {
       const playerData = G.players[playerID];
       let card : PopulationCard;
 
-      if (cardIndex) {
+      if (cardIndex !== undefined) {
         const cardId = G.market[DeckType.Population][cardIndex];
 
         if (cardId === undefined)
